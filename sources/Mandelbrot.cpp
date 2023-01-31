@@ -127,20 +127,37 @@ void savePicture( const std::string& filename, int W, int H, const std::vector<i
 
 int main(int argc, char *argv[] ) 
  { 
-    MPI_Init(&nargs, &argv);
+    int rank, nbp, lenres;
+    char name[4096];
+    MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD, &nbp);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Get_processor_name(name, &lenres);
     int tag = 4268;
+    printf("%d\n",nbp);
 
+    const int maxIter = 8*65536;
     const int W = 800;
     const int H = 600;
+    std::vector<int> pixel(W*H);
+    for(int i = 0; i<nbp;i++)
+    {
+        if(rank==i)
+        {
+            for( int j=i*H/nbp;i<(i+1)*H/nbp;j++)
+            {
+                computeMandelbrotSetRow(W,H,maxIter,j,pixel.data());
+            }
+            
+        }
+    }
+    MPI_Reduce (&pixel, &pixel, W*H, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
     // Normalement, pour un bon rendu, il faudrait le nombre d'itérations
     // ci--dessous :
     //const int maxIter = 16777216;
-    const int maxIter = 8*65536;
-    auto iters = computeMandelbrotSet( W, H, maxIter );
-    savePicture("mandelbrot.tga", W, H, iters, maxIter);
+    
+   // auto iters = computeMandelbrotSet( W, H, maxIter );
+    savePicture("mandelbrot.tga", W, H, pixel, maxIter);
     return EXIT_SUCCESS;
  }
     
