@@ -5,6 +5,7 @@
 # include <cmath>
 # include <vector>
 # include <fstream>
+# include <mpi.h>
 
 
 
@@ -126,6 +127,12 @@ void savePicture( const std::string& filename, int W, int H, const std::vector<i
 
 int main(int argc, char *argv[] ) 
  { 
+    MPI_Init(&nargs, &argv);
+    MPI_Comm_size(MPI_COMM_WORLD, &nbp);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Get_processor_name(name, &lenres);
+    int tag = 4268;
+
     const int W = 800;
     const int H = 600;
     // Normalement, pour un bon rendu, il faudrait le nombre d'itérations

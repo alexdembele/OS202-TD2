@@ -5,6 +5,8 @@ from PIL import Image
 from math import log
 from time import time
 import matplotlib.cm
+from mpi4py import MPI
+
 
 @dataclass
 class MandelbrotSet:
