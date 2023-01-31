@@ -1,4 +1,4 @@
-# TP2 de NOM Prénom
+# TP2 de NDembélé Alex
 
 `pandoc -s --toc tp2.md --css=./github-pandoc.css -o tp2.html`
 
