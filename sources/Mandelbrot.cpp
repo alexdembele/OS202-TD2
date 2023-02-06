@@ -140,6 +140,7 @@ int main(int argc, char *argv[] )
     const int W = 800;
     const int H = 600;
     std::vector<int> pixel(W*H);
+    std::vector<int> pixels(W*H);
     for(int i = 0; i<nbp;i++)
     {
         if(rank==i)
@@ -151,13 +152,13 @@ int main(int argc, char *argv[] )
             
         }
     }
-    MPI_Reduce (&pixel, &pixel, W*H, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+    MPI_Reduce (pixels.data(), pixel.data(), W*H, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
     // Normalement, pour un bon rendu, il faudrait le nombre d'itérations
     // ci--dessous :
     //const int maxIter = 16777216;
     
    // auto iters = computeMandelbrotSet( W, H, maxIter );
-    savePicture("mandelbrot.tga", W, H, pixel, maxIter);
+    savePicture("mandelbrot.tga", W, H, pixels, maxIter);
     return EXIT_SUCCESS;
  }
     
