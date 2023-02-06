@@ -141,17 +141,28 @@ int main(int argc, char *argv[] )
     const int H = 600;
     std::vector<int> pixel(W*H);
     std::vector<int> pixels(W*H);
-    for(int i = 0; i<nbp;i++)
+    printf("%d\n",nbp);
+    int S=H/nbp;
+    if(rank==0)
     {
-        if(rank==i)
+        for( int j=0;j<S;j++)
         {
-            for( int j=i*H/nbp;i<(i+1)*H/nbp;j++)
-            {
-                computeMandelbrotSetRow(W,H,maxIter,j,pixel.data());
-            }
+            printf("yousk2:%d %d\n",rank,j);
+            computeMandelbrotSetRow(W,H,maxIter,j,pixel.data());
+        }
             
         }
+    
+    else
+    {
+        for (int j=0;j<S;j++)
+        {
+            computeMandelbrotSetRow(W,H,maxIter,j+rank*S,pixel.data());
+        }
     }
+    
+
+
     MPI_Reduce (pixels.data(), pixel.data(), W*H, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
     // Normalement, pour un bon rendu, il faudrait le nombre d'itérations
     // ci--dessous :
@@ -159,6 +170,7 @@ int main(int argc, char *argv[] )
     
    // auto iters = computeMandelbrotSet( W, H, maxIter );
     savePicture("mandelbrot.tga", W, H, pixels, maxIter);
+    MPI_Finalize();
     return EXIT_SUCCESS;
  }
     

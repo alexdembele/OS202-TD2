@@ -8,7 +8,7 @@
 
 ## Mandelbrot 
 
-*Expliquer votre stratégie pour faire une partition équitable des lignes de l'image entre chaque processus*
+On découpe par ligne chaque processeur gère un groupe de ligne égale.
 
            | Taille image : 800 x 600 | 
 -----------+---------------------------
