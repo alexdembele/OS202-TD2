@@ -92,13 +92,17 @@ computeMandelbrotSetRow( int W, int H, int maxIter, int num_ligne, int* pixels)
 }
 
 std::vector<int>
-computeMandelbrotSet( int W, int H, int maxIter )
+computeMandelbrotSet( int W, int H, int maxIter, int nbp, int rank )
 {
     std::chrono::time_point<std::chrono::system_clock> start, end;
     std::vector<int> pixels(W*H);
     start = std::chrono::system_clock::now();
     // On parcourt les pixels de l'espace image :
-    for ( int i = 0; i < H; ++i ) {
+    int H_loc =H/nbp;
+    int start_row= H_loc * rank;
+    int end_row= start_row+H_loc;
+
+    for ( int i = start_row; i < end_row; ++i ) {
       computeMandelbrotSetRow(W, H, maxIter, i, pixels.data() + W*(H-i-1) );
     }
     end = std::chrono::system_clock::now();
@@ -141,34 +145,16 @@ int main(int argc, char *argv[] )
     const int H = 600;
     std::vector<int> pixel(W*H);
     std::vector<int> pixels(W*H);
-    printf("%d\n",nbp);
-    int S=H/nbp;
-    if(rank==0)
-    {
-        for( int j=0;j<S;j++)
-        {
-            printf("yousk2:%d %d\n",rank,j);
-            computeMandelbrotSetRow(W,H,maxIter,j,pixel.data());
-        }
-            
-        }
-    
-    else
-    {
-        for (int j=0;j<S;j++)
-        {
-            computeMandelbrotSetRow(W,H,maxIter,j+rank*S,pixel.data());
-        }
-    }
     
 
 
-    MPI_Reduce (pixels.data(), pixel.data(), W*H, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+   
     // Normalement, pour un bon rendu, il faudrait le nombre d'itérations
     // ci--dessous :
     //const int maxIter = 16777216;
     
-   // auto iters = computeMandelbrotSet( W, H, maxIter );
+    auto iters = computeMandelbrotSet( W, H, maxIter, nbp, rank );
+    //MPI_Gather(pixel.data(),0);
     savePicture("mandelbrot.tga", W, H, pixels, maxIter);
     MPI_Finalize();
     return EXIT_SUCCESS;
