@@ -2,7 +2,7 @@
 # include <cassert>
 # include <vector>
 # include <iostream>
-
+# include <mpi.h>
 // ---------------------------------------------------------------------
 class Matrix : public std::vector<double>
 {
@@ -39,7 +39,7 @@ public:
         out << "]";
         return out;
     }
-private:
+public:
     int m_nrows, m_ncols;
     std::vector<double> m_arr_coefs;
 };
@@ -96,14 +96,41 @@ Matrix::Matrix( int nrows, int ncols ) : m_nrows(nrows), m_ncols(ncols),
     }    
 }
 // =====================================================================
-int main( int nargs, char* argv[] )
+int main( int argc, char* argv[] )
 {
+    int rank, nbp, lenres;
+    char name[4096];
+    MPI_Init(&argc, &argv);
+    MPI_Comm_size(MPI_COMM_WORLD, &nbp);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Get_processor_name(name, &lenres);
+
+    int tag = 4268;
     const int N = 120;
     Matrix A(N);
     std::cout  << "A : " << A << std::endl;
     std::vector<double> u( N );
     for ( int i = 0; i < N; ++i ) u[i] = i+1;
     std::cout << " u : " << u << std::endl;
+    //prod colonne
+    int F=N/nbp;
+    if (rank==0)
+    {
+        
+       std::vector<double> w = A*u; 
+        
+    }
+    else
+    {
+
+    }
+    //prod ligne
+    
+    
+    if(rank==0)
+    {
+        
+    }
     std::vector<double> v = A*u;
     std::cout << "A.u = " << v << std::endl;
     return EXIT_SUCCESS;
