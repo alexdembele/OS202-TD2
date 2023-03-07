@@ -98,6 +98,7 @@ computeMandelbrotSet( int W, int H, int maxIter, int nbp, int rank )
     std::vector<int> pixels(W*H);
     start = std::chrono::system_clock::now();
     // On parcourt les pixels de l'espace image :
+   
     int H_loc =H/nbp;
     int start_row= H_loc * rank;
     int end_row= start_row+H_loc;
@@ -137,7 +138,6 @@ int main(int argc, char *argv[] )
     MPI_Comm_size(MPI_COMM_WORLD, &nbp);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Get_processor_name(name, &lenres);
-    int tag = 4268;
     printf("%d\n",nbp);
 
     const int maxIter = 8*65536;
@@ -154,7 +154,7 @@ int main(int argc, char *argv[] )
     //const int maxIter = 16777216;
     
     auto iters = computeMandelbrotSet( W, H, maxIter, nbp, rank );
-    //MPI_Gather(pixel.data(),0);
+    MPI_Reduce(pixels.data(),pixel.data(),W*H,MPI_INT,MPI_SUM,0,MPI_COMM_WORLD);
     savePicture("mandelbrot.tga", W, H, pixels, maxIter);
     MPI_Finalize();
     return EXIT_SUCCESS;
